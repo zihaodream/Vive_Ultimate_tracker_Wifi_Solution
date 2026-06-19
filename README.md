@@ -1,12 +1,15 @@
 # Vive Ultimate Tracker WiFi-only Bridge
 
-一个非官方 VIVE Ultimate Tracker WiFi-only 多追踪器桥接工具。
+一个非官方 VIVE Ultimate Tracker WiFi-only 多追踪器桥接工具。本项目可以让多台 VIVE Ultimate Tracker 不通过官方接收器，直接接入普通 5GHz WiFi 路由器，由 PC 接收 Tracker 的姿态数据，再转发为 SteamVR / OpenVR Tracker 使用。它的目标是降低 Ultimate Tracker 对官方连接流程、官方接收器、特定使用场景和多点方案的依赖。理论上用户可以自行优化算法，同时突破标准 5 点上限，让已经拥有设备的用户可以更自由地使用自己的硬件。
+
 
 ## 使用前必读
 
 使用前请先阅读：
 
 [docs/使用说明.md](docs/使用说明.md)
+
+建议使用者具备基本的网络、刷机和计算机操作知识，能够理解局域网 IP、ADB / bootloader 驱动、SteamVR driver、刷机风险和设备恢复流程。
 
 不要在不了解流程的情况下直接刷写或启动。首次使用前请确认设备系统版本、地图扫描状态、PC 局域网 IP、WiFi 信息、SteamVR driver 状态和恢复方案。
 
@@ -22,9 +25,6 @@ APQ8053_ROM_FB.zip
 firmware_package\APQ8053_ROM_FB.zip
 ```
 
-本项目可以让多台 VIVE Ultimate Tracker 不通过官方接收器，直接接入普通 5GHz WiFi 路由器，由 PC 接收 Tracker 的姿态数据，再转发为 SteamVR / OpenVR Tracker 使用。它的目标是降低 Ultimate Tracker 对官方连接流程、官方接收器、特定使用场景和多点方案的依赖。理论上用户可以自行优化算法，同时突破标准 5 点上限，让已经拥有设备的用户可以更自由地使用自己的硬件。
-
-建议使用者具备基本的网络、刷机和计算机操作知识，能够理解局域网 IP、ADB / bootloader 驱动、SteamVR driver、刷机风险和设备恢复流程。
 
 当前项目已经完成一条可用链路：
 
