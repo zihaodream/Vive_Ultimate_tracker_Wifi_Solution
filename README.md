@@ -22,8 +22,6 @@ APQ8053_ROM_FB.zip
 firmware_package\APQ8053_ROM_FB.zip
 ```
 
-该目录默认被 `.gitignore` 忽略，不会提交到源码仓库。发布时请将 `APQ8053_ROM_FB.zip` 作为 GitHub Release 附件上传。
-
 本项目可以让多台 VIVE Ultimate Tracker 不通过官方接收器，直接接入普通 5GHz WiFi 路由器，由 PC 接收 Tracker 的姿态数据，再转发为 SteamVR / OpenVR Tracker 使用。它的目标是降低 Ultimate Tracker 对官方连接流程、官方接收器、特定使用场景和多点方案的依赖。理论上用户可以自行优化算法，同时突破标准 5 点上限，让已经拥有设备的用户可以更自由地使用自己的硬件。
 
 建议使用者具备基本的网络、刷机和计算机操作知识，能够理解局域网 IP、ADB / bootloader 驱动、SteamVR driver、刷机风险和设备恢复流程。
