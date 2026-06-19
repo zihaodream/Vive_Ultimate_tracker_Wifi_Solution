@@ -148,19 +148,7 @@ Tracker -> 5GHz router -> PC -> SteamVR
 - 路由器质量、5GHz 信道、无线干扰会影响稳定性。
 - 首次配置需要 ADB。
 - 当前主要面向 Windows + SteamVR。
-- 不包含官方 VIVE Hub 的完整功能，也不是官方 LBE / Business 方案的替代品。
 
-## 不包含的内容
-
-本仓库不应包含，也不会主动提供：
-
-- HTC / VIVE 固件
-- 设备系统镜像
-- 官方接收器固件
-- VIVE Hub 二进制文件
-- SteamVR 官方文件
-- 厂商私有 DLL / ELF / so
-- 未脱敏抓包、日志、设备序列号或 WiFi 密码
 
 本项目只发布社区自写的脚本、服务端代码、OpenVR driver 代码和必要配置。
 
