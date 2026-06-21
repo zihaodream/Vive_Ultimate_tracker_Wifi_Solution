@@ -1,4 +1,9 @@
 # Vive Ultimate Tracker WiFi-only Bridge
+This project lets multiple VIVE Ultimate Trackers connect directly to a normal 5GHz WiFi router without using the official receiver. 
+The PC receives tracker pose data and forwards it to SteamVR / OpenVR as tracker devices. 
+The goal is to reduce UTK's dependency on official connection flows and usage limits.
+The current implementation can bypass the official receiver solution's 5-tracker limit, allowing UTK devices to be used more like VIVE Tracker 3.0
+devices with fewer slot restrictions.
 
 VIVE Ultimate Tracker WiFi-only 多追踪器桥接工具。
 本项目可以让多台 Ultimate Tracker 不通过官方接收器，直接接入普通 5GHz WiFi 路由器，由 PC 接收 Tracker 的姿态数据，再转发到 SteamVR / OpenVR Tracker 使用。
