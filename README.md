@@ -13,6 +13,10 @@ VIVE Ultimate Tracker WiFi-only 多追踪器桥接工具。
 
 [docs/使用说明.md](docs/使用说明.md)
 
+English guide:
+
+[Usage Guide.md](Usage%20Guide.md)
+
 建议使用者具备基本的网络、刷机和计算机操作知识，能够理解局域网 IP、ADB / bootloader 驱动、SteamVR driver、刷机风险和设备恢复流程。
 
 不要在不了解流程的情况下直接刷写或启动。首次使用前请确认设备系统版本、地图扫描状态、PC 局域网 IP、WiFi 信息、SteamVR driver 状态和恢复方案。
@@ -192,6 +196,224 @@ Tracker -> 5GHz router -> PC -> SteamVR
 如果你希望转载、分发、集成，请先联系作者取得授权。
 
 ## 仓库地址
+
+GitHub:
+
+```text
+https://github.com/zihaodream/Vive-Ultimate-Tracker-WiFi-only-
+```
+
+---
+
+# English Version
+
+## VIVE Ultimate Tracker WiFi-only Multi-tracker Bridge
+
+This project lets multiple VIVE Ultimate Trackers connect directly to a normal
+5GHz WiFi router without using the official receiver. The PC receives tracker
+pose data and forwards it to SteamVR / OpenVR as tracker devices.
+
+The goal is to reduce UTK's dependency on official connection flows and usage
+limits. The current implementation can bypass the official receiver solution's
+5-tracker limit, allowing UTK devices to be used more like VIVE Tracker 3.0
+devices with fewer slot restrictions.
+
+## Must Read Before Use
+
+Please read the usage guide before using this project:
+
+[Chinese Usage Guide](docs/使用说明.md)
+
+[English Usage Guide](Usage%20Guide.md)
+
+Users are expected to have basic networking, flashing, and computer operation
+knowledge, including LAN IPs, ADB / bootloader drivers, SteamVR drivers,
+flashing risks, and device recovery procedures.
+
+Do not flash or start anything before understanding the flow. Before first use,
+confirm the device system version, map scan state, PC LAN IP, WiFi information,
+SteamVR driver state, and recovery plan.
+
+UTK 169 firmware package should be downloaded from GitHub Release attachments:
+
+```text
+APQ8053_ROM_FB.zip
+```
+
+Local organized firmware package path:
+
+```text
+firmware_package\APQ8053_ROM_FB.zip
+```
+
+## Current Chain
+
+```text
+VIVE Ultimate Tracker
+  -> WiFi router / LAN
+  -> PC UDP/TCP listener
+  -> local binary pose forwarding
+  -> SteamVR OpenVR driver
+  -> virtual SteamVR trackers
+```
+
+## Project Status
+
+Current state: usable for VR games. The real experience is already close to a
+normal Ultimate Tracker connection.
+
+Recommended environment:
+
+- Windows
+- SteamVR
+- 5GHz WiFi router
+- PC and tracker on the same LAN
+- Fixed LAN IP for the PC
+- ADB installed for first-time tracker WiFi-only configuration
+- CMake / Visual Studio C++ environment for building the OpenVR driver
+- Valve OpenVR SDK, default path `external\openvr`, or manually specify
+  `OPENVR_ROOT` during build
+
+## Features
+
+- WiFi-only configuration writing
+- GUI launcher
+- Local PC IP initialization helper
+- Tracker TCP / UDP listener
+- Pose data parsing and forwarding
+- Automatic multi-device port mapping
+- SteamVR / OpenVR virtual tracker driver
+- Low-latency local binary forwarding
+- Debug logs and link status observation
+
+## Quick Start
+
+### 1. Prepare the Network
+
+Use a 5GHz router. The PC and Ultimate Trackers must be connected to the same
+LAN.
+
+To avoid rewriting tracker configuration whenever the router changes the PC IP,
+set a fixed LAN IP for the PC. The GUI `Initialize` button will try to read the
+current PC IP and help configure the current adapter as a static IP.
+
+### 2. Start the GUI
+
+Run:
+
+```powershell
+.\app\UTK-WiFiOnly-GUI.cmd
+```
+
+Common flow:
+
+1. Click `Initialize` to read and fix the current PC LAN IP.
+2. Enter the router WiFi SSID and password.
+3. Enter or confirm `Local PC IP`.
+4. Flash WiFi configuration for each tracker.
+5. Click `Start Service`.
+6. Start SteamVR.
+
+### 3. Connect Trackers
+
+After WiFi-only configuration is written, the tracker connects to the router
+and sends pose data to the specified PC port.
+
+The PC service listens for that data, parses it, and forwards it to local UDP
+ports used by the SteamVR driver. Multiple trackers are mapped automatically to
+consecutive ports, for example:
+
+```text
+127.0.0.1:5557
+127.0.0.1:5558
+127.0.0.1:5559
+...
+```
+
+The SteamVR driver registers these inputs as virtual trackers.
+
+## Recommended Runtime Strategy
+
+Recommended link:
+
+```text
+Tracker -> 5GHz router -> PC -> SteamVR
+```
+
+Current defaults:
+
+- UDP pose input
+- Local binary UTKP forwarding
+- Paced 50 Hz output
+- Periodic `ATM21` disabled by default
+- Required control packets kept in startup handshake
+
+Testing showed that periodic `ATM21` may keep the connection more active, but
+on some devices it can trigger a short `status=3` lost-tracking period of about
+7-10 seconds. Therefore periodic `ATM21` refresh is disabled by default.
+
+## Known Limitations
+
+- This is an unofficial implementation and is not guaranteed to support every
+  firmware version.
+- In WiFi-only mode, the device may enter standby or sleep if unused for a long
+  time.
+- Router quality, 5GHz channel, and wireless interference affect stability.
+- First-time configuration requires ADB.
+- The project is mainly for Windows + SteamVR.
+
+This project only publishes community-written scripts, service code, OpenVR
+driver code, and required configuration.
+
+## Disclaimer
+
+This is an unofficial community project. It is not affiliated with HTC, VIVE,
+Valve, or SteamVR, and is not approved, authorized, or supported by them.
+
+Using this project may affect device network configuration, tracking state,
+SteamVR driver state, or device behavior. Flashing, wrong configuration,
+version mismatch, misuse, or unknown compatibility issues may cause device
+abnormalities, connection failure, failed recovery, data loss, device damage,
+or other serious consequences.
+
+Read the usage guide first and make sure you understand each operation. Any
+consequence caused by skipping instructions, using the wrong version, writing
+wrong WiFi / IP configuration, misusing debug functions, or modifying
+parameters is your own responsibility.
+
+This project provides no warranty of any kind, including availability,
+stability, compatibility, safety, merchantability, or fitness for a particular
+purpose.
+
+## License Notice
+
+This project is not licensed under standard open-source licenses such as MIT,
+Apache, or GPL. It is a source-visible non-commercial project.
+
+Allowed:
+
+- Personal download from this GitHub repository
+- Personal non-commercial use
+- Personal study, research, and local modification
+- Personal compilation and execution on your own devices
+
+Commercial or profit-oriented use is prohibited, including but not limited to:
+
+- Commercial use
+- Selling, renting, paid deployment, or paid maintenance
+- Integrating this project into commercial products, commercial services, or
+  paid bundles
+
+The following actions require author permission first:
+
+- Redistribution, reposting, mirroring, or republishing
+- Secondary packaged releases
+- Publishing modified or derivative versions based on this project
+
+If you want to repost, distribute, or integrate this project, contact the author
+first for permission.
+
+## Repository
 
 GitHub:
 
