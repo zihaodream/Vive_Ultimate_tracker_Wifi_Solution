@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\hmd_driver_factory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\device_provider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\tracker_device_driver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\udp_pose_receiver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\driverlog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\device_provider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\tracker_device_driver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\udp_pose_receiver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\src\driverlog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{A9BF8E5C-2A12-3753-8671-4238AE63760C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4DDFC7AD-62C3-30D5-B9AC-6859FC6F1ED5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,10 @@
+^D:\VIVE_ULTIMATE_TRACKER_WIFI_SOLUTION-MAIN\STEAMVR_DRIVER\BUILD_VERIFY\CMAKEFILES\D0262DA0FF1F3B0493AAB9522072D6D1\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SD:/Vive_Ultimate_tracker_Wifi_Solution-main/steamvr_driver -BD:/Vive_Ultimate_tracker_Wifi_Solution-main/steamvr_driver/build_verify --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/Vive_Ultimate_tracker_Wifi_Solution-main/steamvr_driver/build_verify/utk_wifi_tracker.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

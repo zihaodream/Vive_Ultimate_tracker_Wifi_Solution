@@ -1,0 +1,12 @@
+{
+  "jsonid": "vrresources",
+  "statusicons": {
+    "Tracker": {
+      "Prop_NamedIconPathDeviceOff_String": "{utk_wifi_tracker}/icons/tracker_status_off.png",
+      "Prop_NamedIconPathDeviceSearching_String": "{utk_wifi_tracker}/icons/tracker_status_searching.gif",
+      "Prop_NamedIconPathDeviceReady_String": "{utk_wifi_tracker}/icons/tracker_status_ready.png",
+      "Prop_NamedIconPathDeviceNotReady_String": "{utk_wifi_tracker}/icons/tracker_status_error.png",
+      "Prop_NamedIconPathDeviceStandby_String": "{utk_wifi_tracker}/icons/tracker_status_standby.png"
+    }
+  }
+}

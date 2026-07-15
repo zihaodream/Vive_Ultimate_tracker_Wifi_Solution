@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\Vive_Ultimate_tracker_Wifi_Solution-main\steamvr_driver\build_verify\CMakeFiles\d0262da0ff1f3b0493aab9522072d6d1\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{AC4F0A34-269C-3AF9-A383-7FEA7AE821CD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
