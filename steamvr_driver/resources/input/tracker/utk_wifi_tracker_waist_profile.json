@@ -1,9 +1,0 @@
-{
-  "jsonid": "input_profile",
-  "controller_type": "vive_tracker",
-  "driver_name": "utk_wifi_tracker",
-  "device_class": "generic_tracker",
-  "legacy_binding": "",
-  "input_source": {},
-  "default_bindings": []
-}

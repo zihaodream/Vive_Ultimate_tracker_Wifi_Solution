@@ -1,7 +1,0 @@
-{
-  "alwaysActivate": true,
-  "name": "utk_wifi_tracker",
-  "directory": "",
-  "resourceOnly": false,
-  "hmd_presence": []
-}
