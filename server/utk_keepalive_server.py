@@ -224,6 +224,12 @@ def parse_args() -> argparse.Namespace:
         default=5.0,
         help="write low-rate latency_stats summaries; 0 disables",
     )
+    parser.add_argument(
+        "--control-api-port",
+        type=int,
+        default=19005,
+        help="localhost TCP control API port for one-shot UI commands; 0 disables",
+    )
     return parser.parse_args()
 
 
@@ -1321,6 +1327,87 @@ async def control_refresh_writer(
         await asyncio.sleep(seconds)
 
 
+async def send_one_shot_control(
+    writer: asyncio.StreamWriter,
+    payload: str,
+    slot_size: int,
+    log: EventLog,
+    control_observer: Scheme5ControlObserver,
+    peer: str,
+    preview_bytes: int,
+    direction: str = "send_ui",
+) -> None:
+    frame = build_slot(payload, slot_size)
+    writer.write(frame)
+    await writer.drain()
+    control_observer.observe_control_command(peer, payload, direction, time.monotonic_ns())
+    log.write(
+        {
+            "event": "send_ui_control",
+            "peer": peer,
+            "port": 9005,
+            "payload": payload,
+            "bytes": len(frame),
+            "preview_hex": frame[:preview_bytes].hex(" "),
+        }
+    )
+
+
+async def handle_control_api(
+    reader: asyncio.StreamReader,
+    writer: asyncio.StreamWriter,
+    active_control_writers: dict[str, dict[asyncio.StreamWriter, str]],
+    log: EventLog,
+    control_observer: Scheme5ControlObserver,
+    slot_size: int,
+    preview_bytes: int,
+) -> None:
+    try:
+        raw = await asyncio.wait_for(reader.readline(), timeout=3.0)
+        try:
+            request = json.loads(raw.decode("utf-8-sig").strip())
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            request = {}
+
+        action = str(request.get("action", "")).strip().lower()
+        ip = str(request.get("ip", "")).strip()
+        if action not in ("power_off", "apf"):
+            response = {"ok": False, "error": "unsupported_action"}
+        else:
+            targets: list[tuple[str, str, asyncio.StreamWriter]] = []
+            if ip and ip.lower() != "all":
+                for target_writer, peer in active_control_writers.get(ip, {}).items():
+                    targets.append((ip, peer, target_writer))
+            else:
+                for target_ip in sorted(active_control_writers):
+                    for target_writer, peer in active_control_writers[target_ip].items():
+                        targets.append((target_ip, peer, target_writer))
+
+            if not targets:
+                response = {"ok": False, "error": "no_connected_target", "ip": ip}
+            else:
+                sent: list[str] = []
+                for target_ip, peer, target_writer in targets:
+                    await send_one_shot_control(
+                        target_writer,
+                        "APF",
+                        slot_size,
+                        log,
+                        control_observer,
+                        peer,
+                        preview_bytes,
+                    )
+                    if target_ip not in sent:
+                        sent.append(target_ip)
+                response = {"ok": True, "sent": sent}
+
+        writer.write((json.dumps(response, separators=(",", ":")) + "\n").encode("utf-8"))
+        await writer.drain()
+    finally:
+        writer.close()
+        await writer.wait_closed()
+
+
 async def latency_stats_writer(
     log: EventLog,
     pose_forwarder: PoseForwarder,
@@ -1389,6 +1476,7 @@ async def handle_client(
     control_refresh_start_delay_seconds: float,
     pose_forwarder: PoseForwarder,
     control_observer: Scheme5ControlObserver,
+    active_control_writers: dict[str, dict[asyncio.StreamWriter, str]],
     log_recv_events: bool,
 ) -> None:
     sock = writer.get_extra_info("socket")
@@ -1403,6 +1491,8 @@ async def handle_client(
     connect_time_ns = time.monotonic_ns()
     control_observer.observe_tcp_connect(peer, port, connect_time_ns)
     log.write({"event": "connect", "peer": peer, "port": port})
+    if port == 9005:
+        active_control_writers.setdefault(remote[0], {})[writer] = peer
     pinger = asyncio.create_task(idle_writer(writer, idle_ping_seconds, log, peer, port))
     refresher = asyncio.create_task(
         control_refresh_writer(
@@ -1509,6 +1599,12 @@ async def handle_client(
         log.write({"event": "reset", "peer": peer, "port": port, "total_bytes": total})
     finally:
         control_observer.observe_tcp_disconnect(peer, port, time.monotonic_ns())
+        if port == 9005:
+            entries = active_control_writers.get(remote[0])
+            if entries is not None:
+                entries.pop(writer, None)
+                if not entries:
+                    active_control_writers.pop(remote[0], None)
         pinger.cancel()
         refresher.cancel()
         writer.close()
@@ -1520,6 +1616,7 @@ async def main_async() -> int:
     args = parse_args()
     log = EventLog(args.out, args.console_recv_limit, flush_each_write=not args.realtime)
     control_observer = Scheme5ControlObserver()
+    active_control_writers: dict[str, dict[asyncio.StreamWriter, str]] = {}
     pose_forwarder = PoseForwarder(
         args.pose_forward_udp,
         args.pose_forward_include_zero,
@@ -1609,6 +1706,7 @@ async def main_async() -> int:
                         args.control_refresh_start_delay_seconds,
                         pose_forwarder,
                         control_observer,
+                        active_control_writers,
                         not args.realtime,
                     ),
                 args.bind,
@@ -1616,6 +1714,23 @@ async def main_async() -> int:
             )
             servers.append(server)
             log.write({"event": "listen", "bind": args.bind, "port": port})
+
+        if args.control_api_port > 0:
+            control_server = await asyncio.start_server(
+                lambda r, w: handle_control_api(
+                    r,
+                    w,
+                    active_control_writers,
+                    log,
+                    control_observer,
+                    args.ack_slot_size,
+                    args.preview_bytes,
+                ),
+                "127.0.0.1",
+                args.control_api_port,
+            )
+            servers.append(control_server)
+            log.write({"event": "control_api_listen", "bind": "127.0.0.1", "port": args.control_api_port})
 
         await stop.wait()
     finally:

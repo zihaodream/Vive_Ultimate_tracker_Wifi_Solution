@@ -2,7 +2,7 @@ param(
     [string]$Bind = "0.0.0.0",
     [string]$Ports = "9005,3680,8053,15680",
     [int]$UdpPosePort = 0,
-    [string]$OutDir = (Join-Path (Split-Path -Parent $PSScriptRoot) "logs"),
+    [string]$OutDir = "",
     [string]$Python = "",
     [switch]$StopViveTrackerServer,
     [int]$PreviewBytes = 64,
@@ -31,13 +31,17 @@ param(
     [string]$ControlRefreshPayloads = "",
     [double]$ControlRefreshSeconds = 0,
     [double]$ControlRefreshStartDelaySeconds = 0,
-    [double]$LatencyStatsSeconds = 5.0
+    [double]$LatencyStatsSeconds = 5.0,
+    [int]$ControlApiPort = 19005
 )
 
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $server = Join-Path $scriptDir "utk_keepalive_server.py"
+if (-not $OutDir) {
+    $OutDir = Join-Path (Split-Path -Parent $scriptDir) "backups"
+}
 
 if (-not (Test-Path $server)) {
     throw "Missing keepalive server: $server"
@@ -188,6 +192,10 @@ if ($ControlRefreshPayloads) {
     $argsList += $ControlRefreshSeconds
     $argsList += "--control-refresh-start-delay-seconds"
     $argsList += $ControlRefreshStartDelaySeconds
+}
+if ($ControlApiPort -gt 0) {
+    $argsList += "--control-api-port"
+    $argsList += $ControlApiPort
 }
 
 & $Python @argsList
