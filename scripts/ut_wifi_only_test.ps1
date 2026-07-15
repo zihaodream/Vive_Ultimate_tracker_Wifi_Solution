@@ -2,7 +2,7 @@ param(
     [string]$AdbSerial = "",
     [string]$Ssid = "",
     [string]$Password = "",
-    [string]$ServerIp = "Auto",
+    [string]$ServerIp = "",
     [int]$PosePort = 9005,
     [string]$CountryCode = "CN",
     [string]$Frequency = "0",
