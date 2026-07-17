@@ -12,7 +12,7 @@ Tracker is abbreviated as UTK.
 2. Before using this WiFi-only solution, you must first use the official
    receiver solution and VIVE Hub to complete map scanning for each UTK.
 
-3.-First-time configuration requires ADB. 
+3.-First-time configuration requires ADB environment. 
 (Install ADB environment on your PC first. Chinese guide:  https://blog.csdn.net/QXXXD/article/details/151830144
   English guide:  https://www.xda-developers.com/install-adb-windows-macos-linux/
   See the "Add ADB to your Path environment variables" section.)
