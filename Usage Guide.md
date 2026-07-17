@@ -83,7 +83,7 @@ off all connected devices.
 
 `Dongle Mode`
 
-Switches the device back to official receiver mode. This is usually used when
+Switches the device back to official receiver mode(using ViveHub). This is usually used when
 you need to update maps through the official VIVE Hub software.
 
 ## First-time Usage Flow
