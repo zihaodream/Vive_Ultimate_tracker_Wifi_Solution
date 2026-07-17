@@ -84,19 +84,29 @@ VIVE Ultimate Tracker
 
 ```text
 app/
-  GUI 和一键启动入口
+  GUI 和一键启动入口，封装常用操作：启动/停止服务、查看状态、刷入 WiFi-only 配置、恢复 dongle 模式等。
 
 scripts/
-  Tracker WiFi-only 配置与恢复脚本
+  Tracker WiFi-only 配置与恢复脚本，主要用于测试配置写入和恢复接收器/原始模式。
 
 server/
-  PC 端 keepalive / pose forwarding 服务
+  PC 端 keepalive / pose forwarding 服务，负责监听 tracker TCP/UDP 数据、发送控制/保活命令、解析姿态包并转发给本机驱动。
 
 steamvr_driver/
-  SteamVR OpenVR Tracker 驱动源码
+  SteamVR OpenVR Tracker 驱动源码，包含驱动 manifest、CMake 构建脚本、注册脚本和实际 OpenVR driver 代码。
 
 docs/
-  开发记录、链路问题记录、调试结论
+  使用教程、阶段开发日志、已知问题记录。
+
+external/
+  第三方依赖源码/头文件，目前主要是 OpenVR SDK，用于编译 SteamVR 驱动。
+
+build_verify/
+  CMake / Visual Studio 生成的驱动构建目录，用于验证编译结果；通常不是手写源码，可按需删除后重新生成。
+
+backups/
+  运行时日志、抓包记录、配置备份等输出文件；体积可能很大，不建议作为核心源码阅读。
+
 ```
 
 ## 快速开始
@@ -105,7 +115,7 @@ docs/
 
 建议使用 5GHz 路由器。PC 和 Ultimate Tracker 需要连接到同一个局域网。
 
-为了避免每次路由器重新分配 IP 后都要重新写入 Tracker 配置，建议给 PC 设置固定局域网 IP。GUI 中的初始化按钮会尝试读取当前 PC IP，并辅助把当前网卡配置为静态 IP。
+为了避免每次路由器重新分配 IP 后都要重新写入 Tracker 配置，建议给 PC 设置固定局域网 IP。GUI 中的初始化（Initialize）按钮会尝试读取当前 PC IP，并辅助把当前网卡配置为静态 IP。
 
 ### 2. 启动 GUI
 
@@ -117,9 +127,9 @@ docs/
 
 常用流程：
 
-1. 点击 `Initialize`，读取并固定当前 PC 局域网 IP。
+1. 点击 `Initialize`，读取并固定当前 PC 局域网 IP（如果ip发生变动 设备需要重新刷写ip 但固定以后应该除非是换路由器一般不会发生变化）。
 2. 填入路由器 WiFi SSID 和密码。
-3. 填入或确认 `Local PC IP`。
+3. 填入或确认 `Local PC IP`（这个在软件启动时会自动获取）。
 4. 对每个 Tracker 执行 WiFi 写入。
 5. 点击 `Start Service`。
 6. 启动 SteamVR。
@@ -159,14 +169,14 @@ Tracker -> 5GHz router -> PC -> SteamVR
 
 ## 已知限制
 
-- 这是非官方实现，不保证适配所有固件版本。
+- 这是非官方实现，不保证适配所有固件版本（目前可用固件版本为）。
 - WiFi-only 模式下，设备长时间未被使用时可能会进入待机或休眠。
 - 路由器质量、5GHz 信道、无线干扰会影响稳定性。
-- 首次配置需要 ADB。
+- 首次配置需要 ADB（需先给自己电脑安装adb环境 中文教程 https://blog.csdn.net/QXXXD/article/details/151830144
+英文教程：https://www.xda-developers.com/install-adb-windows-macos-linux/   Part：Add ADB to your Path environment variables ）。
 - 当前主要面向 Windows + SteamVR。
 
 
-本项目只发布社区自写的脚本、服务端代码、OpenVR driver 代码和必要配置。
 
 ## 免责声明
 
@@ -208,7 +218,7 @@ Tracker -> 5GHz router -> PC -> SteamVR
 GitHub:
 
 ```text
-https://github.com/zihaodream/Vive-Ultimate-Tracker-WiFi-only-
+https://github.com/zihaodream/Vive_Ultimate_tracker_Wifi_Solution
 ```
 
 ---
@@ -294,6 +304,45 @@ Recommended environment:
 - Low-latency local binary forwarding
 - Debug logs and link status observation
 
+## Directory Structure
+
+```text
+app/
+  GUI and one-click launch entry points. It wraps common operations such as
+  starting/stopping the service, checking status, writing WiFi-only
+  configuration, and restoring dongle mode.
+
+scripts/
+  Tracker WiFi-only configuration and recovery scripts, mainly used to test
+  configuration writing and restore receiver/original mode.
+
+server/
+  PC-side keepalive / pose forwarding service. It listens for tracker TCP/UDP
+  data, sends control/keepalive commands, parses pose packets, and forwards
+  them to the local driver.
+
+steamvr_driver/
+  SteamVR OpenVR Tracker driver source code, including the driver manifest,
+  CMake build scripts, registration script, and the actual OpenVR driver code.
+
+docs/
+  Usage guides, staged development notes, and known issue records.
+
+external/
+  Third-party dependency source/header files. Currently this is mainly the
+  OpenVR SDK used to build the SteamVR driver.
+
+build_verify/
+  CMake / Visual Studio generated driver build directory, used to verify build
+  output. It is usually not hand-written source code and can be deleted and
+  regenerated when needed.
+
+backups/
+  Runtime logs, packet capture records, configuration backups, and other output
+  files. These files can become large and are not recommended as core source
+  reading material.
+```
+
 ## Quick Start
 
 ### 1. Prepare the Network
@@ -317,7 +366,8 @@ Common flow:
 
 1. Click `Initialize` to read and fix the current PC LAN IP.
 2. Enter the router WiFi SSID and password.
-3. Enter or confirm `Local PC IP`.
+3. Enter or confirm `Local PC IP`; the GUI attempts to detect it automatically
+   when it starts.
 4. Flash WiFi configuration for each tracker.
 5. Click `Start Service`.
 6. Start SteamVR.
@@ -367,7 +417,12 @@ on some devices it can trigger a short `status=3` lost-tracking period of about
 - In WiFi-only mode, the device may enter standby or sleep if unused for a long
   time.
 - Router quality, 5GHz channel, and wireless interference affect stability.
-- First-time configuration requires ADB.
+- First-time configuration requires ADB. Install ADB on your PC first. Chinese
+  guide:
+  https://blog.csdn.net/QXXXD/article/details/151830144
+  English guide:
+  https://www.xda-developers.com/install-adb-windows-macos-linux/
+  See the "Add ADB to your Path environment variables" section.
 - The project is mainly for Windows + SteamVR.
 
 This project only publishes community-written scripts, service code, OpenVR
@@ -426,5 +481,5 @@ first for permission.
 GitHub:
 
 ```text
-https://github.com/zihaodream/Vive-Ultimate-Tracker-WiFi-only-
+https://github.com/zihaodream/Vive_Ultimate_tracker_Wifi_Solution
 ```
