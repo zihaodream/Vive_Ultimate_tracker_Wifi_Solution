@@ -27,6 +27,9 @@ The English version follows the Chinese version below.
 
 建议使用者具备基本的网络、刷机和计算机操作知识，能够理解局域网 IP、ADB / bootloader 驱动、SteamVR driver、刷机风险和设备恢复流程。
 
+首次配置需要 ADB（需先给自己电脑安装adb环境 中文教程 https://blog.csdn.net/QXXXD/article/details/151830144
+英文教程：https://www.xda-developers.com/install-adb-windows-macos-linux/   Part：Add ADB to your Path environment variables ）。
+
 不要在不了解流程的情况下直接刷写或启动。首次使用前请确认设备系统版本、地图扫描状态、PC 局域网 IP、WiFi 信息、SteamVR driver 状态和恢复方案。
 
 UTK 169 刷机包请从 GitHub Release 附件下载。文件名：
@@ -101,8 +104,6 @@ docs/
 external/
   第三方依赖源码/头文件，目前主要是 OpenVR SDK，用于编译 SteamVR 驱动。
 
-build_verify/
-  CMake / Visual Studio 生成的驱动构建目录，用于验证编译结果；通常不是手写源码，可按需删除后重新生成。
 
 backups/
   运行时日志、抓包记录、配置备份等输出文件；体积可能很大，不建议作为核心源码阅读。
@@ -172,8 +173,6 @@ Tracker -> 5GHz router -> PC -> SteamVR
 - 这是非官方实现，不保证适配所有固件版本（目前可用固件版本为）。
 - WiFi-only 模式下，设备长时间未被使用时可能会进入待机或休眠。
 - 路由器质量、5GHz 信道、无线干扰会影响稳定性。
-- 首次配置需要 ADB（需先给自己电脑安装adb环境 中文教程 https://blog.csdn.net/QXXXD/article/details/151830144
-英文教程：https://www.xda-developers.com/install-adb-windows-macos-linux/   Part：Add ADB to your Path environment variables ）。
 - 当前主要面向 Windows + SteamVR。
 
 
@@ -247,6 +246,13 @@ Please read the usage guide before using this project:
 Users are expected to have basic networking, flashing, and computer operation
 knowledge, including LAN IPs, ADB / bootloader drivers, SteamVR drivers,
 flashing risks, and device recovery procedures.
+
+- First-time configuration requires ADB. 
+Install ADB on your PC first.
+(Chinese guide:
+https://blog.csdn.net/QXXXD/article/details/151830144
+  English guide: https://www.xda-developers.com/install-adb-windows-macos-linux/
+  See the "Add ADB to your Path environment variables" section.)
 
 Do not flash or start anything before understanding the flow. Before first use,
 confirm the device system version, map scan state, PC LAN IP, WiFi information,
@@ -332,10 +338,6 @@ external/
   Third-party dependency source/header files. Currently this is mainly the
   OpenVR SDK used to build the SteamVR driver.
 
-build_verify/
-  CMake / Visual Studio generated driver build directory, used to verify build
-  output. It is usually not hand-written source code and can be deleted and
-  regenerated when needed.
 
 backups/
   Runtime logs, packet capture records, configuration backups, and other output
@@ -417,12 +419,7 @@ on some devices it can trigger a short `status=3` lost-tracking period of about
 - In WiFi-only mode, the device may enter standby or sleep if unused for a long
   time.
 - Router quality, 5GHz channel, and wireless interference affect stability.
-- First-time configuration requires ADB. Install ADB on your PC first. Chinese
-  guide:
-  https://blog.csdn.net/QXXXD/article/details/151830144
-  English guide:
-  https://www.xda-developers.com/install-adb-windows-macos-linux/
-  See the "Add ADB to your Path environment variables" section.
+
 - The project is mainly for Windows + SteamVR.
 
 This project only publishes community-written scripts, service code, OpenVR
