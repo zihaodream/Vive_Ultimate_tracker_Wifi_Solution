@@ -26,7 +26,9 @@ $wifiOnlyProps = @(
     "persist.wifi.only.proto",
     "persist.horusd.timeout.recover",
     "persist.tracking.mode.wifipose",
-    "persist.tracking.mode.6dof"
+    "persist.tracking.mode.6dof",
+    "persist.lambda.tstatic.stby",
+    "persist.lambda.lost.stby"
 )
 
 $receiverModeProps = [ordered]@{
@@ -35,6 +37,8 @@ $receiverModeProps = [ordered]@{
     "persist.horusd.timeout.recover" = "0"
     "persist.wifi.only.proto" = "udp"
     "persist.tracking.mode.wifipose" = "0"
+    "persist.lambda.tstatic.stby" = "0"
+    "persist.lambda.lost.stby" = "1"
 }
 
 $endpointProps = @(
