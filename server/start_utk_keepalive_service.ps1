@@ -25,6 +25,8 @@ param(
     [string]$PoseForwardPeerIp = "",
     [string]$PoseForwardMap = "",
     [string]$PoseForwardAutoMap = "",
+    [string]$BindingFile = "",
+    [int]$BindingSlotCount = 10,
     [switch]$PoseForwardIncludeZero,
     [string]$ReadyPayloads = "",
     [int]$ReadyAfterValidFrames = 30,
@@ -175,6 +177,9 @@ if ($PoseForwardMap) {
 if ($PoseForwardAutoMap) {
     $argsList += "--pose-forward-auto-map"
     $argsList += $PoseForwardAutoMap
+}
+if ($BindingFile) {
+    $argsList += @("--binding-file", $BindingFile, "--binding-slot-count", "$BindingSlotCount")
 }
 if ($PoseForwardIncludeZero) {
     $argsList += "--pose-forward-include-zero"

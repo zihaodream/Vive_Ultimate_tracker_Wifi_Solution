@@ -36,6 +36,8 @@ param(
     [string]$PoseForwardPeerIp = "",
     [string]$PoseForwardMap = "",
     [string]$PoseForwardAutoMap = "",
+    [ValidateSet("Fixed", "Legacy")]
+    [string]$BindingMode = "Fixed",
     [object]$PoseForwardIncludeZero = $true,
     [string]$ReadyPayloads = "",
     [int]$ReadyAfterValidFrames = 30,
@@ -48,7 +50,7 @@ param(
     [object]$AutoRegisterSteamVR = $true,
     [object]$BuildSteamVRDriverIfMissing = $true,
     [int]$UdpStartPort = 5557,
-    [int]$TrackerCount = 10
+    [int]$TrackerCount =10
 )
 
 $ErrorActionPreference = "Stop"
@@ -497,6 +499,12 @@ function Get-TrackerDeviceRows {
     }
 
     $index = 0
+    $savedBindings = $null
+    $bindingPath = Join-Path $stateDir "tracker_bindings.json"
+    $useFixedBindings = $state -and $state.binding_mode -eq "Fixed"
+    if ($useFixedBindings -and (Test-Path -LiteralPath $bindingPath)) {
+        $savedBindings = Get-Content -LiteralPath $bindingPath -Raw | ConvertFrom-Json
+    }
     $activeIps = if ($onlineIps.Count -gt 0) { @($peerOrder | Where-Object { $onlineIps.Contains($_) }) } else { @($peerOrder) }
     $rows = foreach ($ip in $activeIps) {
         $device = $devices[$ip]
@@ -507,7 +515,13 @@ function Get-TrackerDeviceRows {
             }
         }
         if ($autoMapStartPort -ne $null) {
-            $device.SteamVRUdpPort = $autoMapStartPort + $index
+            $device.SteamVRUdpPort = $null
+            if (-not $useFixedBindings) {
+                $device.SteamVRUdpPort = $autoMapStartPort + $index
+            } elseif ($savedBindings -and $device.TrackerSN) {
+                $binding = $savedBindings.PSObject.Properties[$device.TrackerSN]
+                if ($binding) { $device.SteamVRUdpPort = $autoMapStartPort + [int]$binding.Value - 1 }
+            }
         }
         $index += 1
         [pscustomobject]@{
@@ -735,6 +749,9 @@ function Start-Keepalive {
     }
     if ($effectivePoseForwardAutoMap) {
         $argsList += @("-PoseForwardAutoMap", $effectivePoseForwardAutoMap)
+        if ($BindingMode -eq "Fixed" -and -not $PoseForwardMap -and -not $PoseForwardUdp) {
+            $argsList += @("-BindingFile", (Join-Path $stateDir "tracker_bindings.json"), "-BindingSlotCount", "$TrackerCount")
+        }
     }
     if ($PoseForwardIncludeZero) {
         $argsList += "-PoseForwardIncludeZero"
@@ -764,6 +781,7 @@ function Start-Keepalive {
         stderr = $stderr
         ports = $Ports
         pose_forward_auto_map = $effectivePoseForwardAutoMap
+        binding_mode = $BindingMode
         control_refresh_payloads = $ControlRefreshPayloads
         control_refresh_seconds = $ControlRefreshSeconds
         control_refresh_start_delay_seconds = $ControlRefreshStartDelaySeconds
