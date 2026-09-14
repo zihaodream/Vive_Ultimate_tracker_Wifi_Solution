@@ -32,6 +32,10 @@ $props = [ordered]@{
     "persist.horusd.wifi.only.port"  = [string]$PosePort
     "persist.horusd.wifi.only.proto" = $Proto
     "persist.horusd.wifi.only.mode"  = $Mode
+    # Official WiFi-only auto-sleep: pAS_TS enables table-static standby,
+    # ROM also ships persist.lambda.lost.stby=1 (lost-tracking standby).
+    "persist.lambda.tstatic.stby"    = "0"
+    "persist.lambda.lost.stby"       = "0"
 }
 
 if ($OfficialUdpProps -or $Proto -eq "udp") {

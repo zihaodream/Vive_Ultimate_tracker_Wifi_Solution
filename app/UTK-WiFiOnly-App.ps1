@@ -18,7 +18,7 @@ param(
     [switch]$StopViveTrackerServer,
     [int]$PreviewBytes = 4096,
     [double]$IdlePingSeconds = 0,
-    [string]$AckPayloads = "ANI0,ATW,ACF50,ATS{unix},WcCN,FW2,pAS_TS180,ATM21",
+    [string]$AckPayloads = "ANI0,ATW,ACF50,ATS{unix},WcCN,FW2,pAS_TS0,pAS_LT0,ATM21",
     [object]$AckOnConnect = $true,
     [int]$AckSlotSize = 128,
     [int]$ConsoleRecvLimit = -1,

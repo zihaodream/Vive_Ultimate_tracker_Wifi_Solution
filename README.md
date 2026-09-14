@@ -22,6 +22,8 @@ English guide:
 
 [Usage Guide.md](Usage%20Guide.md)
 
+第三方教程/Third-party tutorial/第三者チュートリアル
+https://blog.pikegadge.com/vive-ultimate-tracker-wifi-only-bridge-review/
 
 The English version follows the Chinese version below.
 
