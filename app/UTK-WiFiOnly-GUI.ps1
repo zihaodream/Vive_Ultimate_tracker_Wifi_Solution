@@ -459,6 +459,25 @@ $trackerCountBox.Location = New-Object System.Drawing.Point(160, 246)
 $trackerCountBox.Size = New-Object System.Drawing.Size(80, 24)
 $form.Controls.Add($trackerCountBox)
 
+$bindingModeBox = New-Object System.Windows.Forms.ComboBox
+$bindingModeBox.DropDownStyle = "DropDownList"
+$bindingModeBox.Location = New-Object System.Drawing.Point(260, 246)
+$bindingModeBox.Size = New-Object System.Drawing.Size(396, 24)
+[void]$bindingModeBox.Items.Add("Fixed binding (tracker serial)")
+[void]$bindingModeBox.Items.Add("Legacy binding (arrival order)")
+$bindingModeBox.SelectedIndex = 0
+$bindingStatePath = Join-Path (Split-Path -Parent $PSScriptRoot) "backups\utk_wifi_only_app\keepalive_process.json"
+if (Test-Path -LiteralPath $bindingStatePath) {
+    try {
+        $bindingState = Get-Content -LiteralPath $bindingStatePath -Raw | ConvertFrom-Json
+        if ($bindingState.binding_mode -eq "Legacy") { $bindingModeBox.SelectedIndex = 1 }
+    } catch { }
+}
+$form.Controls.Add($bindingModeBox)
+$bindingModeBox.Add_SelectedIndexChanged({
+    $statusBox.Text = "Binding mode applies on next service start. Click Stop, then Start Service. Saved fixed bindings are retained in Legacy mode."
+})
+
 $statusBox = New-Object System.Windows.Forms.TextBox
 $statusBox.Multiline = $true
 $statusBox.ReadOnly = $true
@@ -528,6 +547,7 @@ $serviceButton.Add_Click({
     $argsList = @(
         "-Action", "StartKeepalive",
         "-TrackerCount", ([string][int]$trackerCountBox.Value),
+        "-BindingMode", $(if ($bindingModeBox.SelectedIndex -eq 0) { "Fixed" } else { "Legacy" }),
         "-StopViveTrackerServer",
         "-UdpPosePort", "9005",
         "-AckOnConnect:`$true",

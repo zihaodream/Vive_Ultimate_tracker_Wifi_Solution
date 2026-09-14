@@ -190,6 +190,9 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="forward 02 25 frames even when x/y/z are all zero",
     )
+    parser.add_argument("--binding-file", type=Path, default=None,
+                        help="persist tracker serial to virtual slot bindings (requires auto-map)")
+    parser.add_argument("--binding-slot-count", type=int, default=10)
     parser.add_argument(
         "--ready-payloads",
         default="",
@@ -965,7 +968,25 @@ class PoseForwarder:
         paced_target_hz: float = 60.0,
         paced_backlog_collapse_ms: float = 8.0,
         forward_format: str = "json",
+        binding_file: Path | None = None,
+        binding_slot_count: int = 10,
     ) -> None:
+        self._binding_file = binding_file
+        self._binding_slot_count = binding_slot_count
+        self._serials: dict[str, str] = {}
+        self._bindings: dict[str, int] = {}
+        if binding_file:
+            if not auto_map_start or peer_targets or target:
+                raise ValueError("binding-file requires auto-map without explicit forwarding targets")
+            if binding_slot_count < 1 or auto_map_start[1] + binding_slot_count - 1 > 65535:
+                raise ValueError("invalid binding slot range")
+            if binding_file.exists():
+                self._bindings = json.loads(binding_file.read_text(encoding="utf-8"))
+                if (not isinstance(self._bindings, dict)
+                        or any(not isinstance(k, str) or not k or type(v) is not int
+                               or not 1 <= v <= binding_slot_count for k, v in self._bindings.items())
+                        or len(set(self._bindings.values())) != len(self._bindings)):
+                    raise ValueError("invalid or duplicate tracker bindings")
         self._target = target
         self._include_zero = include_zero
         self._peer_ip = peer_ip.strip()
@@ -997,6 +1018,23 @@ class PoseForwarder:
 
     def target_for_peer(self, peer: str) -> tuple[str, int] | None:
         peer_ip = peer.split(":", 1)[0]
+        if self._binding_file:
+            serial = self._serials.get(peer_ip)
+            if not serial:
+                return None
+            slot = self._bindings.get(serial)
+            if slot is None:
+                slot = next((i for i in range(1, self._binding_slot_count + 1)
+                             if i not in self._bindings.values()), None)
+                if slot is None:
+                    return None
+                bindings = {**self._bindings, serial: slot}
+                self._binding_file.parent.mkdir(parents=True, exist_ok=True)
+                temporary = self._binding_file.with_suffix(".tmp")
+                temporary.write_text(json.dumps(bindings, indent=2) + "\n", encoding="utf-8")
+                temporary.replace(self._binding_file)
+                self._bindings = bindings
+            return (self._auto_map_start[0], self._auto_map_start[1] + slot - 1)
         explicit_target = self._peer_targets.get(peer_ip)
         if explicit_target:
             return explicit_target
@@ -1009,6 +1047,27 @@ class PoseForwarder:
             self._auto_assignments[peer_ip] = target
             return target
         return self._target
+
+    def observe_identity(self, peer: str, data: bytes, buffer: bytearray) -> None:
+        if not self._binding_file:
+            return
+        buffer.extend(data)
+        while len(buffer) >= 2:
+            if buffer[0] != 1 or not 0 < buffer[1] <= 126:
+                del buffer[0]
+                continue
+            length = buffer[1]
+            if len(buffer) < length + 2:
+                break
+            command = bytes(buffer[2:2 + length]).decode("ascii", errors="replace")
+            del buffer[:length + 2]
+            if command.startswith("NADS") and command[4:] and all(32 <= ord(c) <= 126 for c in command):
+                ip = peer.split(":", 1)[0]
+                serial = command[4:]
+                for previous_ip in list(self._serials):
+                    if self._serials[previous_ip] == serial:
+                        del self._serials[previous_ip]
+                self._serials[ip] = serial
 
     @staticmethod
     def parse_frame_stats(frame: bytes) -> dict[str, int]:
@@ -1513,6 +1572,9 @@ async def handle_client(
     ready_sent = False
     valid_pose_frames = 0
     pose_stream_buffer = bytearray()
+    identity_buffer = bytearray()
+    if port == 9005:
+        pose_forwarder._serials.pop(remote[0], None)
 
     try:
         if port == 9005 and ack_payloads and ack_on_connect:
@@ -1552,6 +1614,7 @@ async def handle_client(
             recv_time_ns = time.monotonic_ns()
             control_observer.observe_tcp_recv(peer, port, data, recv_time_ns)
             if port == 9005:
+                pose_forwarder.observe_identity(peer, data, identity_buffer)
                 pose_stats = pose_forwarder.forward_recv(recv_time_ns, peer, data, pose_stream_buffer)
                 pose_forwarder.observe_recv_stats(peer, recv_time_ns, pose_stats)
                 control_observer.observe_pose_stats(peer, pose_stats, None, recv_time_ns)
@@ -1629,6 +1692,8 @@ async def main_async() -> int:
         args.paced_target_hz,
         args.paced_backlog_collapse_ms,
         args.pose_forward_format,
+        args.binding_file,
+        args.binding_slot_count,
     )
     stop = asyncio.Event()
     latency_task = asyncio.create_task(
