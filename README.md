@@ -5,6 +5,7 @@ The goal is to reduce UTK's dependency on official connection flows and usage li
 The current implementation can bypass the official receiver solution's 5-tracker limit, allowing UTK devices to be used more like VIVE Tracker 3.0
 devices with fewer slot restrictions.
 
+项目好久没更新了？其实是我懒得更新，大部分核心工作完成了用的也挺舒服：如果有人想把这个项目接手研究下去（我会把原始工程和研究发你），或者不太会用这个项目 可以联系我QQ：239409664（小号注明来意） 
 VIVE Ultimate Tracker WiFi-only 多追踪器桥接工具。
 本项目可以让多台 Ultimate Tracker 不通过官方接收器，直接接入普通 5GHz WiFi 路由器，由 PC 接收 Tracker 的姿态数据，再转发到 SteamVR / OpenVR Tracker 使用。
 它的目标是降低UTK对官方流程和限制的依赖。
